@@ -6,37 +6,18 @@ import os
 import sys
 from time import gmtime, strftime, time
 import json
-import requests
 import numpy as np
 import cv2
+from farmware_tools import get_config_value, device, env
 
-FARMWARE_NAME = 'plot_sensor_data'
 TIME_SCALE_FACTOR = 60 * 2
 DATA_SCALE_FACTOR = 2
 RECENT = {'time': None}
 
-def get_env(key, type_=int):
-    'Return the value of the namespaced Farmware input variable.'
-    return type_(os.getenv('{}_{}'.format(FARMWARE_NAME, key), 59))
-
-def post(wrapped_data):
-    """Send the Celery Script command."""
-    headers = {
-        'Authorization': 'bearer {}'.format(os.environ['FARMWARE_TOKEN']),
-        'content-type': 'application/json'}
-    payload = json.dumps(wrapped_data)
-    requests.post(os.environ['FARMWARE_URL'] + 'api/v1/celery_script',
-                  data=payload, headers=headers)
-
 def no_data_error():
     """Send an error to the log if there's no data."""
     message = '[Plot sensor data] No data available for pin {}.'.format(PIN)
-    wrapped_message = {
-        'kind': 'send_message',
-        'args': {
-            'message_type': 'error',
-            'message': message}}
-    post(wrapped_message)
+    device.log(message, 'error')
 
 def get_pin_data(pin):
     """Get existing historical pin data."""
@@ -62,7 +43,7 @@ def reduce_data(data):
 def plot(data):
     """Plot the reduced data."""
     # Create blank plot
-    p = np.full([512, 24 * 60 / 2], 255, np.uint8)
+    p = np.full([512, int(24 * 60 / 2)], 255, np.uint8)
     # Add shaded plot areas
     if IS_SOIL_SENSOR:
         for i in range(512):
@@ -129,9 +110,9 @@ def plot(data):
 def save(image):
     """Save the plot image."""
     filename = '/sensor_data_plot_{}.png'.format(int(time()))
-    cv2.imwrite(os.environ['IMAGES_DIR'] + filename, image)
+    cv2.imwrite(env.Env().images_dir + filename, image)
 
 if __name__ == '__main__':
-    PIN = get_env('pin')
+    PIN = get_config_value('plot-sensor-data', 'pin')
     IS_SOIL_SENSOR = PIN == 59
     save(plot(reduce_data(get_pin_data(PIN))))
