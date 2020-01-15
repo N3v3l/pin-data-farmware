@@ -45,7 +45,7 @@ def plot(data):
     # Create blank plot
     p = np.full([512, int(24 * 60 / 2)], 255, np.uint8)
     # Add shaded plot areas
-    if IS_SOIL_SENSOR:
+    if IS_TEMP_SENSOR:
         for i in range(512):
             if i < 100:  # N/A
                 p[i, :] = 220
@@ -81,10 +81,10 @@ def plot(data):
                         label['position'], 0, 0.5, 0, 1)
     # Add sensor range text
     range_labels = [{'text': 'off', 'position': (500, 25)},
-                    {'text': 'wet', 'position': (425, 25)},
-                    {'text': 'dry', 'position': (160, 25)},
+                    {'text': 'cold', 'position': (425, 25)},
+                    {'text': 'hot', 'position': (160, 25)},
                     {'text': 'n/a', 'position': (75, 25)}]
-    if IS_SOIL_SENSOR:
+    if IS_TEMP_SENSOR:
         _add_labels(border, range_labels)
     # Flip labels to display vertically
     full = cv2.flip(cv2.transpose(border), 0)
@@ -103,7 +103,7 @@ def plot(data):
     # Add label area to plot area
     full[44:556, 40:760] = p
     # Add plot title
-    title = '{}sensor (pin {})'.format('soil ' if IS_SOIL_SENSOR else '', PIN)
+    title = '{}sensor (pin {})'.format('soil ' if IS_TEMP_SENSOR else '', PIN)
     cv2.putText(full, title.upper(), (325, 25), 0, 0.75, 0, 2)
     return full
 
@@ -114,5 +114,5 @@ def save(image):
 
 if __name__ == '__main__':
     PIN = get_config_value('plot-sensor-data', 'pin')
-    IS_SOIL_SENSOR = PIN == 59
+    IS_TEMP_SENSOR = PIN == 13
     save(plot(reduce_data(get_pin_data(PIN))))
