@@ -5,10 +5,10 @@ Save and plot temperature sensor data.
 [Farmware page](https://my.farm.bot/app/farmware) install URL:
 ```
 Save:
-https://raw.githubusercontent.com/N3v3l/pin-data-farmware/master/save/manifest.json
+https://raw.githubusercontent.com/N3v3l/pin-data-farmware/master/save/manifest_v1.json
 
 Plot:
-https://raw.githubusercontent.com/N3v3l/pin-data-farmware/master/plot/manifest.json
+https://raw.githubusercontent.com/N3v3l/pin-data-farmware/master/plot/manifest_v1.json
 ```
 
 ## Use
